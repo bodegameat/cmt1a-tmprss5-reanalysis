@@ -1,5 +1,7 @@
 # Preclinical Nerve Transcript Pharmacodynamics vs. Cutaneous Null of TMPRSS5 (Spinesin) in CMT1A
 
+[![DOI](https://zenodo.org/badge/1453105149.svg)](https://doi.org/10.5281/zenodo.24118723)
+
 **Joshua Bryant-Gainer**  
 November 2026
 
