@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CMT1A TMPRSS5 Reanalysis — Nerve PD vs Cutaneous Null</title>
+  <meta name="description" content="Preclinical nerve transcript pharmacodynamics versus cutaneous null of TMPRSS5 (Spinesin) in CMT1A. GSE103799 reanalysis by Joshua Bryant-Gainer." />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0b0c0e;
+      --bg-elev: #12141a;
+      --bg-card: #161922;
+      --line: #2a2e3a;
+      --line-soft: #1e2230;
+      --text: #e8e9ed;
+      --muted: #9aa0ae;
+      --faint: #6b7280;
+      --accent: #c8a96e;
+      --accent-dim: rgba(200, 169, 110, 0.14);
+      --wt: #7aa2c9;
+      --c22: #d9776c;
+      --aso: #6fbf9a;
+      --radius: 2px;
+      --max: 1080px;
+      --font: Inter, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(200, 169, 110, 0.07), transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, rgba(122, 162, 201, 0.06), transparent 50%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .wrap {
+      width: min(100% - 2rem, var(--max));
+      margin-inline: auto;
+    }
+
+    header.site {
+      border-bottom: 1px solid var(--line);
+      background: rgba(11, 12, 14, 0.85);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1.5rem;
+      padding: 1.25rem 0 1.15rem;
+      flex-wrap: wrap;
+    }
+
+    .kicker {
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 0.45rem;
+    }
+
+    h1 {
+      font-size: clamp(1.15rem, 2.4vw, 1.55rem);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+      max-width: 38rem;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 0.4rem;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.55rem 0.85rem;
+      border: 1px solid var(--line);
+      background: var(--bg-elev);
+      color: var(--text);
+      font-size: 0.82rem;
+      font-weight: 500;
+      border-radius: var(--radius);
+      text-decoration: none;
+      transition: border-color 0.15s ease, background 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+      text-decoration: none;
+    }
+
+    .btn.primary {
+      border-color: rgba(200, 169, 110, 0.45);
+      background: var(--accent-dim);
+      color: var(--accent);
+    }
+
+    main { padding: 2rem 0 4rem; }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.9rem;
+      margin: 0.5rem 0 2rem;
+    }
+
+    .hero-card {
+      background: linear-gradient(180deg, var(--bg-card), var(--bg-elev));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.15rem 1.2rem 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+    }
+
+    .hero-card.disease::before { background: var(--c22); }
+    .hero-card.rescue::before { background: var(--aso); }
+    .hero-card.null::before { background: var(--wt); }
+
+    .hero-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--faint);
+      font-weight: 600;
+      margin-bottom: 0.55rem;
+    }
+
+    .hero-value {
+      font-size: clamp(1.45rem, 3vw, 1.85rem);
+      font-weight: 650;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    .hero-card.disease .hero-value { color: #efb0a7; }
+    .hero-card.rescue .hero-value { color: #9fdcc0; }
+    .hero-card.null .hero-value { color: #b5d0e8; }
+
+    .hero-sub {
+      margin-top: 0.55rem;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    section {
+      margin-bottom: 2.25rem;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.9rem;
+      border-bottom: 1px solid var(--line-soft);
+      padding-bottom: 0.55rem;
+    }
+
+    h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    .section-note {
+      font-size: 0.8rem;
+      color: var(--faint);
+      font-family: var(--mono);
+    }
+
+    .panel {
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1rem 1rem 0.75rem;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: min(420px, 62vw);
+      min-height: 280px;
+    }
+
+    .legend-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 0.75rem;
+      padding-top: 0.65rem;
+      border-top: 1px solid var(--line-soft);
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .swatch {
+      display: inline-block;
+      width: 0.7rem;
+      height: 0.7rem;
+      border-radius: 1px;
+      margin-right: 0.35rem;
+      vertical-align: -1px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--bg-elev);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      min-width: 480px;
+    }
+
+    th, td {
+      padding: 0.7rem 0.9rem;
+      text-align: left;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    th {
+      color: var(--faint);
+      font-weight: 600;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(255,255,255,0.02);
+      position: sticky;
+      top: 0;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    tbody tr:hover td { background: rgba(255,255,255,0.025); }
+
+    .mono { font-family: var(--mono); font-size: 0.84rem; }
+
+    .pill {
+      display: inline-block;
+      padding: 0.15rem 0.45rem;
+      border-radius: 2px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .pill.wt { background: rgba(122, 162, 201, 0.18); color: #b5d0e8; }
+    .pill.c22 { background: rgba(217, 119, 108, 0.18); color: #efb0a7; }
+    .pill.aso { background: rgba(111, 191, 154, 0.18); color: #9fdcc0; }
+
+    .prose {
+      color: var(--muted);
+      font-size: 0.98rem;
+      max-width: 68ch;
+    }
+
+    .prose p + p { margin-top: 1rem; }
+
+    .prose strong { color: var(--text); font-weight: 600; }
+
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      margin: 1.25rem 0 0;
+    }
+
+    .stat {
+      border: 1px solid var(--line-soft);
+      background: var(--bg-card);
+      padding: 0.85rem 0.9rem;
+      border-radius: var(--radius);
+    }
+
+    .stat .l {
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-bottom: 0.35rem;
+    }
+
+    .stat .v {
+      font-family: var(--mono);
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 1.5rem 0 2.5rem;
+      color: var(--faint);
+      font-size: 0.82rem;
+    }
+
+    @media (max-width: 860px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .stats-strip { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 520px) {
+      .wrap { width: min(100% - 1.25rem, var(--max)); }
+      .stats-strip { grid-template-columns: 1fr; }
+      h1 { font-size: 1.15rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site">
+    <div class="wrap header-inner">
+      <div>
+        <div class="kicker">CMT1A · TMPRSS5 Reanalysis</div>
+        <h1>Preclinical Nerve Transcript Pharmacodynamics vs. Cutaneous Null of TMPRSS5 (Spinesin)</h1>
+        <div class="meta">Joshua Bryant-Gainer · November 2026</div>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="https://github.com/bodegameat/cmt1a-tmprss5-reanalysis" target="_blank" rel="noopener">GitHub Repo</a>
+        <a class="btn" href="data/gse103799_tmprss5_tpm.csv">Raw CSV</a>
+        <a class="btn" href="scripts/recompute_tmprss5.py">Python Script</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero-grid" aria-label="Executive findings">
+      <article class="hero-card disease">
+        <div class="hero-label">Untreated Nerve</div>
+        <div class="hero-value">+2.90 log2FC</div>
+        <div class="hero-sub">C22_PBS vs WT_PBS · Disease elevation</div>
+      </article>
+      <article class="hero-card rescue">
+        <div class="hero-label">ASO Treated Nerve</div>
+        <div class="hero-value">67.40% Rescue</div>
+        <div class="hero-sub">Disease Δ reduced after PMP22 ASO</div>
+      </article>
+      <article class="hero-card null">
+        <div class="hero-label">Cutaneous Null</div>
+        <div class="hero-value">1.00× FC</div>
+        <div class="hero-sub">Svaren 2019 skin · p = 0.99 · #52/54</div>
+      </article>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>GSE103799 · Sciatic Nerve TMPRSS5 TPM</h2>
+        <div class="section-note">n = 24 mice · grouped bars + scatter</div>
+      </div>
+      <div class="panel">
+        <div class="chart-wrap">
+          <canvas id="tpmChart" aria-label="TMPRSS5 TPM by group"></canvas>
+        </div>
+        <div class="legend-row">
+          <span><i class="swatch" style="background:var(--wt)"></i>WT_PBS mean 11.17</span>
+          <span><i class="swatch" style="background:var(--c22)"></i>C22_PBS mean 83.60</span>
+          <span><i class="swatch" style="background:var(--aso)"></i>C22_ASO mean 34.78</span>
+          <span>Hover points for exact sample TPM</span>
+        </div>
+      </div>
+      <div class="stats-strip">
+        <div class="stat"><div class="l">Disease Δ</div><div class="v">72.43 TPM</div></div>
+        <div class="stat"><div class="l">ASO Δ</div><div class="v">48.82 TPM</div></div>
+        <div class="stat"><div class="l">Welch · Disease</div><div class="v">p = 0.00116</div></div>
+        <div class="stat"><div class="l">Welch · Treatment</div><div class="v">p = 0.00926</div></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Sample Table</h2>
+        <div class="section-note">data/gse103799_tmprss5_tpm.csv</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Sample ID</th>
+              <th>Group</th>
+              <th>TMPRSS5 TPM</th>
+            </tr>
+          </thead>
+          <tbody id="sampleBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>White Paper</h2>
+        <div class="section-note">Abstract & Implications</div>
+      </div>
+      <div class="prose">
+        <p>
+          Charcot–Marie–Tooth disease type 1A (CMT1A) is driven by <strong>PMP22</strong> gene dosage, yet circulating biomarkers that report Schwann-cell pharmacodynamics remain incompletely validated across tissue compartments. Wang et al. (2020) reported plasma TMPRSS5 (spinesin) elevation in CMT1A with a <strong>2.07-fold</strong> increase and discriminative performance of <strong>AUC 0.9131</strong>, nominating TMPRSS5 as a candidate blood protein marker. Reanalysis of the Zhao/Svaren antisense oligonucleotide (ASO) sciatic-nerve RNA-seq cohort (<strong>GSE103799</strong>) demonstrates that <em>Tmprss5</em> transcript abundance tracks disease and treatment in peripheral nerve: untreated C22 mice exhibit a <strong>+2.90 log2 fold-change</strong> versus wild-type, ASO-mediated <em>Pmp22</em> suppression yields a <strong>−1.26 log2 fold-change</strong> relative to untreated C22, and the disease-associated TPM excess is reduced by <strong>67.40%</strong>. In contrast, the Svaren 2019 Dryad cutaneous (skin) microarray resource shows a cutaneous <strong>null</strong> for TMPRSS5 (<strong>fold-change 1.00</strong>, <strong>p = 0.99</strong>, ranking <strong>#52 of 54</strong> probes), indicating that skin transcript abundance does not recapitulate the nerve or plasma signal.
+        </p>
+        <p>
+          The <strong>67.4%</strong> reduction in sciatic-nerve <em>Tmprss5</em> after <em>Pmp22</em>-directed ASO treatment places TMPRSS5 downstream of Schwann-cell gene-dosage pathology and within the dynamic range of a treatment-responsive transcript. The cutaneous null argues against skin biopsy mRNA as a surrogate for this axis. Plasma protein elevation (Wang 2020) remains the most clinically accessible compartment, yet the missing link is whether circulating TMPRSS5 quantitatively tracks nerve electrophysiology and ASO engagement in the same individuals over time. Future studies should therefore prioritize <strong>paired plasma TMPRSS5 protein assays with nerve conduction / electromyography endpoints</strong> to establish whether blood levels report the same pharmacodynamic window observed at <strong>+2.90 / −1.26 log2FC</strong> in GSE103799.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      Reproducible reanalysis · <a href="scripts/recompute_tmprss5.py">scripts/recompute_tmprss5.py</a>
+      · Netlify static publish root <span class="mono">.</span>
+      · © 2026 Joshua Bryant-Gainer
+    </div>
+  </footer>
+
+  <script>
+    const SAMPLES = [
+      { sample_id: "GSM2782061", group: "WT_PBS", tmprss5_tpm: 8.78 },
+      { sample_id: "GSM2782062", group: "WT_PBS", tmprss5_tpm: 6.41 },
+      { sample_id: "GSM2782063", group: "WT_PBS", tmprss5_tpm: 9.96 },
+      { sample_id: "GSM2782064", group: "WT_PBS", tmprss5_tpm: 12.44 },
+      { sample_id: "GSM2782065", group: "WT_PBS", tmprss5_tpm: 8.09 },
+      { sample_id: "GSM2782066", group: "WT_PBS", tmprss5_tpm: 14.36 },
+      { sample_id: "GSM2782067", group: "WT_PBS", tmprss5_tpm: 14.20 },
+      { sample_id: "GSM2782068", group: "WT_PBS", tmprss5_tpm: 15.12 },
+      { sample_id: "GSM2782045", group: "C22_PBS", tmprss5_tpm: 60.78 },
+      { sample_id: "GSM2782046", group: "C22_PBS", tmprss5_tpm: 79.85 },
+      { sample_id: "GSM2782047", group: "C22_PBS", tmprss5_tpm: 62.98 },
+      { sample_id: "GSM2782048", group: "C22_PBS", tmprss5_tpm: 30.04 },
+      { sample_id: "GSM2782049", group: "C22_PBS", tmprss5_tpm: 153.04 },
+      { sample_id: "GSM2782050", group: "C22_PBS", tmprss5_tpm: 125.34 },
+      { sample_id: "GSM2782051", group: "C22_PBS", tmprss5_tpm: 68.29 },
+      { sample_id: "GSM2782052", group: "C22_PBS", tmprss5_tpm: 88.50 },
+      { sample_id: "GSM2782053", group: "C22_ASO", tmprss5_tpm: 25.92 },
+      { sample_id: "GSM2782054", group: "C22_ASO", tmprss5_tpm: 39.96 },
+      { sample_id: "GSM2782055", group: "C22_ASO", tmprss5_tpm: 27.18 },
+      { sample_id: "GSM2782056", group: "C22_ASO", tmprss5_tpm: 40.16 },
+      { sample_id: "GSM2782057", group: "C22_ASO", tmprss5_tpm: 43.36 },
+      { sample_id: "GSM2782058", group: "C22_ASO", tmprss5_tpm: 39.24 },
+      { sample_id: "GSM2782059", group: "C22_ASO", tmprss5_tpm: 31.58 },
+      { sample_id: "GSM2782060", group: "C22_ASO", tmprss5_tpm: 30.85 }
+    ];
+
+    const GROUP_ORDER = ["WT_PBS", "C22_PBS", "C22_ASO"];
+    const GROUP_COLOR = {
+      WT_PBS: "#7aa2c9",
+      C22_PBS: "#d9776c",
+      C22_ASO: "#6fbf9a"
+    };
+    const GROUP_MEAN = {
+      WT_PBS: 11.17,
+      C22_PBS: 83.60,
+      C22_ASO: 34.78
+    };
+
+    const tbody = document.getElementById("sampleBody");
+    SAMPLES.forEach((row) => {
+      const tr = document.createElement("tr");
+      const pillClass = row.group === "WT_PBS" ? "wt" : row.group === "C22_PBS" ? "c22" : "aso";
+      tr.innerHTML = `
+        <td class="mono">${row.sample_id}</td>
+        <td><span class="pill ${pillClass}">${row.group}</span></td>
+        <td class="mono">${row.tmprss5_tpm.toFixed(2)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    const barData = GROUP_ORDER.map((g) => GROUP_MEAN[g]);
+    const barColors = GROUP_ORDER.map((g) => GROUP_COLOR[g]);
+
+    const scatterPoints = SAMPLES.map((s) => ({
+      x: GROUP_ORDER.indexOf(s.group),
+      y: s.tmprss5_tpm,
+      sample_id: s.sample_id,
+      group: s.group
+    }));
+
+    const ctx = document.getElementById("tpmChart");
+    new Chart(ctx, {
+      data: {
+        labels: GROUP_ORDER,
+        datasets: [
+          {
+            type: "bar",
+            label: "Group mean TPM",
+            data: barData,
+            backgroundColor: barColors.map((c) => c + "55"),
+            borderColor: barColors,
+            borderWidth: 1.5,
+            borderRadius: 2,
+            barPercentage: 0.55,
+            categoryPercentage: 0.7,
+            order: 2
+          },
+          {
+            type: "scatter",
+            label: "Individual mice",
+            data: scatterPoints,
+            parsing: false,
+            backgroundColor: scatterPoints.map((p) => GROUP_COLOR[p.group]),
+            borderColor: "#0b0c0e",
+            borderWidth: 1,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            order: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: "nearest", intersect: true },
+        plugins: {
+          legend: {
+            labels: {
+              color: "#9aa0ae",
+              boxWidth: 12,
+              font: { family: "Inter, Helvetica Neue, sans-serif", size: 12 }
+            }
+          },
+          tooltip: {
+            backgroundColor: "#161922",
+            borderColor: "#2a2e3a",
+            borderWidth: 1,
+            titleColor: "#e8e9ed",
+            bodyColor: "#c8a96e",
+            padding: 10,
+            callbacks: {
+              title(items) {
+                const raw = items[0].raw;
+                if (raw && raw.sample_id) return raw.sample_id;
+                return items[0].label;
+              },
+              label(item) {
+                if (item.dataset.type === "scatter" || item.raw?.sample_id) {
+                  return `${item.raw.group}: ${item.raw.y.toFixed(2)} TPM`;
+                }
+                return `Mean: ${Number(item.raw).toFixed(2)} TPM`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            type: "category",
+            labels: GROUP_ORDER,
+            offset: true,
+            grid: { color: "rgba(42,46,58,0.55)", drawTicks: false },
+            ticks: {
+              color: "#9aa0ae",
+              font: { family: "Inter, Helvetica Neue, sans-serif", size: 12 }
+            }
+          },
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: "TMPRSS5 TPM",
+              color: "#9aa0ae",
+              font: { family: "Inter, Helvetica Neue, sans-serif", size: 12 }
+            },
+            grid: { color: "rgba(42,46,58,0.55)" },
+            ticks: {
+              color: "#9aa0ae",
+              font: { family: "SF Mono, Menlo, monospace", size: 11 }
+            }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
