@@ -2,7 +2,7 @@
 
 **Reproducible Data Note & Literature Cross-Reference**
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24120063.svg)](https://doi.org/10.5281/zenodo.24120063)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24118723.svg)](https://doi.org/10.5281/zenodo.24118723)
 
 Joshua Bryant-Gainer (CMT1A patient and data analyst) – November 2026 – Not peer-reviewed
 
@@ -21,12 +21,14 @@ Sciatic nerve *Tmprss5* TPM, 15-week-old mice, n = 8 per group:
 | WT_PBS | 8 | 11.17 | 3.29 | 6.41–15.12 |
 | C22_PBS | 8 | 83.60 | 39.01 | 30.04–153.04 |
 | C22_ASO | 8 | 34.78 | 6.67 | 25.92–43.36 |
+| WT_ASO | 8 | 10.86 | 3.48 | 6.76–16.01 |
 
 - **Untreated C22 vs wild-type:** 7.48x WT (log2FC +2.90), a gap of 72.43 TPM.
 - **ASO-treated vs untreated C22:** ratio 0.42 (log2FC −1.27), a shift of −48.82 TPM.
   - Reduction from untreated, (C22_PBS − C22_ASO) / C22_PBS: **58.4%**.
   - Share of the gap over WT closed, (C22_PBS − C22_ASO) / (C22_PBS − WT_PBS): **67.4%**.
   - Treated mice remain **3.11x** WT.
+- **ASO control in wild-type:** wild-type + ASO 10.86 vs wild-type + PBS 11.17 TPM (ratio 0.97). Welch t-test p = 0.85907 (raw TPM) and 0.84146 (log2 TPM); Mann-Whitney U p = 0.87848. The ASO did not measurably change Tmprss5 in wild-type nerve.
 
 Two-sided p-values:
 
@@ -35,6 +37,7 @@ Two-sided p-values:
 | C22_PBS vs WT_PBS | 0.00116 | 7.7e-07 | 0.00016 |
 | C22_ASO vs C22_PBS | 0.00926 | 0.00222 | 0.00466 |
 | C22_ASO vs WT_PBS | 3.6e-06 | 1.6e-06 | 0.00016 |
+| WT_ASO vs WT_PBS | 0.85907 | 0.84146 | 0.87848 |
 
 This is one gene with no multiple-testing correction.
 
@@ -45,12 +48,12 @@ Two high C22_PBS mice (125.34 and 153.04 TPM) raise the untreated mean, and one 
 - Library prep and sequencing, as stated in GEO: QuantSeq 3' mRNA-Seq Library Prep Kit from Lexogen; NextSeq 500 (platform GPL19057).
 - Quantification, as stated in GEO: reads were associated to transcripts using a quasi-mapping based mode of Salmon (version 0.7.2), using gene models from mouse ensembl build 81 (GRCm38.p4).
 - Per-sample Salmon transcript quantification files were downloaded from GEO. Gene-level Tmprss5 TPM is the sum of TPM across its Ensembl transcripts (IDs listed in the script). Tmprss5 transcripts identified from the Ensembl release 102 (GRCm38) GTF and the current Ensembl REST lookup.
-- GEO check (10 November 2026): all 24 values match the GEO files to 0.01 TPM. GEO sample titles and characteristics (genotype, treatment, 100 mg/kg, age 15 weeks) agree with the group labels.
+- GEO check (10 November 2026): all 32 values match the GEO files to 0.01 TPM. GEO sample titles and characteristics (genotype, treatment, 100 mg/kg, age 15 weeks) agree with the group labels.
 
 ## Study context
 
 - **Dataset:** GSE103799, from Zhao et al., *J Clin Invest* 2018;128(1):359-368, co-authored by Dr. John Svaren. 3' poly-A mRNA sequencing of sciatic nerve.
-- **Subset:** the 24 samples GSM2782045–GSM2782068 are the 15-week-old animals: wild-type + PBS, C22 + PBS, and C22 + PMP22 ASO at 100 mg/kg weekly by subcutaneous injection for 9 weeks, starting at 5 weeks of age. The series also contains untreated 5-week animals, not analyzed here.
+- **Subset:** GSE103799 has 43 samples. Thirty-two are 15-week-old animals in four arms of 8: wild-type + PBS (GSM2782061–GSM2782068), C22 + PBS (GSM2782045–GSM2782052), C22 + PMP22 ASO (GSM2782053–GSM2782060), and wild-type + PMP22 ASO (GSM2782069–GSM2782076). The ASO arms received 100 mg/kg weekly by subcutaneous injection for 9 weeks, starting at 5 weeks of age. The main comparison uses the first three arms (24 mice); the wild-type + ASO arm is reported as a control. The series also contains 11 untreated 5-week animals (8 C22, 3 wild-type), not analyzed here.
 - **Model:** C22 is a severe model carrying about seven copies of human PMP22; 100 mg/kg was the highest dose tested.
 - Zhao et al. reported 1,056 genes differing more than twofold between 15-week C22 and wild-type nerve. A Schwann cell gene moving back toward wild-type as myelination improves is expected and is not specific to Tmprss5.
 
@@ -85,12 +88,12 @@ python3 scripts/recompute_tmprss5.py
 python3 scripts/recompute_tmprss5.py --fetch-geo
 ```
 
-Result of the GEO check run on 10 November 2026: 24/24 samples OK. All 24 values match the GEO files to 0.01 TPM, and the GEO titles and characteristics agree with the CSV group labels.
+Result of the GEO check run on 10 November 2026: 32/32 samples OK. All 32 values match the GEO files to 0.01 TPM, and the GEO titles and characteristics agree with the CSV group labels.
 
 Dependencies: Python 3.9+ and `scipy`. The `--fetch-geo` mode uses only the standard library.
 
 Files:
 
-- `data/gse103799_tmprss5_tpm.csv`: the 24 sample values
+- `data/gse103799_tmprss5_tpm.csv`: the 32 sample values
 - `scripts/recompute_tmprss5.py`: statistics and GEO check (`TMPRSS5_TRANSCRIPTS` lists the transcript IDs and their sources)
 - `index.html`: static site (Netlify, publish root `.`)

@@ -1,0 +1,7 @@
+cff-version: 1.2.0
+message: "If you use this analysis, please cite it as below."
+title: "Tmprss5 in the Zhao 2018 C22 ASO nerve data (GSE103799)"
+type: software
+authors:
+  - family-names: Bryant-Gainer
+    given-names: Joshua

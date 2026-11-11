@@ -27,7 +27,8 @@ CSV_PATH = os.path.join(
     "gse103799_tmprss5_tpm.csv",
 )
 
-GROUPS = ("WT_PBS", "C22_PBS", "C22_ASO")
+MAIN_GROUPS = ("WT_PBS", "C22_PBS", "C22_ASO")
+GROUPS = MAIN_GROUPS + ("WT_ASO",)
 SERIES_ACC = "GSE103799"
 MATCH_TOL = 0.005
 
@@ -79,6 +80,10 @@ def load_rows(path: str) -> list[dict]:
     with open(path, newline="") as handle:
         reader = csv.DictReader(handle)
         for row in reader:
+            if row["group"].strip() not in GROUPS:
+                raise ValueError(
+                    f"{row['sample_id']}: unknown group {row['group']!r}; expected one of {GROUPS}"
+                )
             rows.append(
                 {
                     "sample_id": row["sample_id"].strip(),
@@ -96,6 +101,24 @@ def load_groups(rows: list[dict]) -> dict[str, list[float]]:
     return groups
 
 
+def print_group_line(group: str, values: list[float]) -> None:
+    print(
+        f"  {group:8s}  n={len(values)}  mean={mean(values):.2f}  SD={sample_sd(values):.2f}  "
+        f"min-max={min(values):.2f}-{max(values):.2f}"
+    )
+
+
+def print_tests(a: list[float], b: list[float]) -> None:
+    welch_raw = stats.ttest_ind(a, b, equal_var=False)
+    log_a = [math.log2(x) for x in a]
+    log_b = [math.log2(x) for x in b]
+    welch_log = stats.ttest_ind(log_a, log_b, equal_var=False)
+    mw = stats.mannwhitneyu(a, b, alternative="two-sided")
+    print(f"    Welch t-test on raw TPM:            p={fmt_p(welch_raw.pvalue)}")
+    print(f"    Welch t-test on log2(TPM):          p={fmt_p(welch_log.pvalue)}")
+    print(f"    Mann-Whitney U:                     p={fmt_p(mw.pvalue)}")
+
+
 def print_analysis(rows: list[dict]) -> None:
     groups = load_groups(rows)
     print("=" * 64)
@@ -105,17 +128,10 @@ def print_analysis(rows: list[dict]) -> None:
 
     summary: dict[str, dict] = {}
     print("Group summary (n, mean, sample SD, min-max):")
-    for group in GROUPS:
+    for group in MAIN_GROUPS:
         values = groups[group]
-        n = len(values)
-        m = mean(values)
-        sd = sample_sd(values)
-        lo, hi = min(values), max(values)
-        summary[group] = {"n": n, "mean": m, "sd": sd, "values": values}
-        print(
-            f"  {group:8s}  n={n}  mean={m:.2f}  SD={sd:.2f}  "
-            f"min-max={lo:.2f}-{hi:.2f}"
-        )
+        summary[group] = {"mean": mean(values), "values": values}
+        print_group_line(group, values)
 
     wt = summary["WT_PBS"]["mean"]
     c22 = summary["C22_PBS"]["mean"]
@@ -165,15 +181,8 @@ def print_analysis(rows: list[dict]) -> None:
     print()
     print("Two-sided p-values (one gene; no multiple-testing correction):")
     for label, a, b in contrasts:
-        welch_raw = stats.ttest_ind(a, b, equal_var=False)
-        log_a = [math.log2(x) for x in a]
-        log_b = [math.log2(x) for x in b]
-        welch_log = stats.ttest_ind(log_a, log_b, equal_var=False)
-        mw = stats.mannwhitneyu(a, b, alternative="two-sided")
         print(f"  {label}:")
-        print(f"    Welch t-test on raw TPM:            p={fmt_p(welch_raw.pvalue)}")
-        print(f"    Welch t-test on log2(TPM):          p={fmt_p(welch_log.pvalue)}")
-        print(f"    Mann-Whitney U:                     p={fmt_p(mw.pvalue)}")
+        print_tests(a, b)
 
     aso_lo, aso_hi = min(aso_vals), max(aso_vals)
     over_100 = sorted(v for v in c22_vals if v > 100)
@@ -193,6 +202,16 @@ def print_analysis(rows: list[dict]) -> None:
         "C22_PBS values inside that range: "
         + (", ".join(f"{v:.2f}" for v in in_aso_range) if in_aso_range else "none")
     )
+    print()
+
+    wt_aso_vals = groups["WT_ASO"]
+    wt_aso = mean(wt_aso_vals)
+    print("ASO control in wild-type (WT_ASO vs WT_PBS):")
+    print_group_line("WT_ASO", wt_aso_vals)
+    print(f"  Ratio (WT_ASO / WT_PBS):               {wt_aso / wt:.2f}")
+    print(f"  log2FC:                               {math.log2(wt_aso / wt):+.2f}")
+    print("  Two-sided p-values:")
+    print_tests(wt_aso_vals, wt_vals)
     print()
 
 

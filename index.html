@@ -21,6 +21,7 @@
       --wt: #7aa2c9;
       --c22: #d9776c;
       --aso: #6fbf9a;
+      --wtaso: #9ca3af;
       --radius: 2px;
       --max: 1080px;
       --font: Inter, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -290,6 +291,7 @@
     .pill.wt { background: rgba(122, 162, 201, 0.18); color: #b5d0e8; }
     .pill.c22 { background: rgba(217, 119, 108, 0.18); color: #efb0a7; }
     .pill.aso { background: rgba(111, 191, 154, 0.18); color: #9fdcc0; }
+    .pill.wtaso { background: rgba(156, 163, 175, 0.18); color: #d1d5db; }
 
     .prose {
       color: var(--muted);
@@ -390,7 +392,7 @@
         <h1>Tmprss5 in the Zhao 2018 C22 ASO nerve data (GSE103799)</h1>
         <div class="meta">Joshua Bryant-Gainer (CMT1A patient and data analyst) – November 2026 – Not peer-reviewed</div>
         <div style="margin-top:0.65rem">
-          <a href="https://doi.org/10.5281/zenodo.24120063"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.24120063.svg" alt="DOI"></a>
+          <a href="https://doi.org/10.5281/zenodo.24118723"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.24118723.svg" alt="DOI"></a>
         </div>
       </div>
       <div class="actions">
@@ -423,15 +425,16 @@
     <section>
       <div class="section-head">
         <h2>GSE103799 · Sciatic nerve Tmprss5 TPM</h2>
-        <div class="section-note">n = 24 mice · bars + individual points</div>
+        <div class="section-note">n = 32 mice · bars + individual points</div>
       </div>
       <div class="panel">
         <div class="chart-wrap">
           <canvas id="tpmChart" aria-label="Tmprss5 TPM by group"></canvas>
         </div>
-        <p class="chart-caption">Solid bars indicate group means (n = 8 mice per arm); points show individual mice (GSM2782045-GSM2782068). Two high C22_PBS mice (125.34 and 153.04 TPM) raise the untreated mean, and one C22_PBS mouse (30.04 TPM) overlaps the ASO-treated range. The treatment difference holds in a Mann-Whitney U test (p = 0.0047) and a Welch t-test on log2 TPM (p = 0.0022).</p>
+        <p class="chart-caption">Solid bars indicate group means (n = 8 mice per arm); points show individual mice (GSM2782045-GSM2782076). Two high C22_PBS mice (125.34 and 153.04 TPM) raise the untreated mean, and one C22_PBS mouse (30.04 TPM) overlaps the ASO-treated range. The treatment difference holds in a Mann-Whitney U test (p = 0.0047) and a Welch t-test on log2 TPM (p = 0.0022).</p>
         <div class="legend-row">
           <span><i class="swatch" style="background:var(--wt)"></i>WT_PBS mean 11.17</span>
+          <span><i class="swatch" style="background:var(--wtaso)"></i>WT_ASO mean 10.86</span>
           <span><i class="swatch" style="background:var(--c22)"></i>C22_PBS mean 83.60</span>
           <span><i class="swatch" style="background:var(--aso)"></i>C22_ASO mean 34.78</span>
           <span>Hover points for exact sample TPM</span>
@@ -483,15 +486,16 @@
           <li><strong>ASO-treated vs untreated C22:</strong> 83.60 → 34.78 TPM, ratio 0.42 (log2FC −1.27), a shift of −48.82 TPM. Welch t-test p = 0.00926 (raw TPM) and 0.00222 (log2 TPM); Mann-Whitney U p = 0.00466.</li>
           <li>Reduction from untreated, (C22_PBS − C22_ASO) / C22_PBS: <strong>58.4%</strong>. Share of the gap over WT closed, (C22_PBS − C22_ASO) / (C22_PBS − WT_PBS): <strong>67.4%</strong>.</li>
           <li><strong>ASO-treated C22 vs wild-type:</strong> treated mice remain 3.11x WT. Welch t-test p = 3.6e-06 (raw TPM) and 1.6e-06 (log2 TPM); Mann-Whitney U p = 0.00016.</li>
+          <li><strong>ASO control in wild-type:</strong> wild-type + ASO 10.86 vs wild-type + PBS 11.17 TPM (ratio 0.97). Welch t-test p = 0.85907 (raw TPM) and 0.84146 (log2 TPM); Mann-Whitney U p = 0.87848. The ASO did not measurably change Tmprss5 in wild-type nerve.</li>
         </ul>
         <p>This is one gene with no multiple-testing correction.</p>
         <p><strong>Methods.</strong> As stated in GEO: QuantSeq 3' mRNA-Seq Library Prep Kit from Lexogen; NextSeq 500 (platform GPL19057); reads were associated to transcripts using a quasi-mapping based mode of Salmon (version 0.7.2), using gene models from mouse ensembl build 81 (GRCm38.p4). Per-sample Salmon transcript quantification files were downloaded from GEO. Gene-level Tmprss5 TPM is the sum of TPM across its Ensembl transcripts (IDs listed in the script). Tmprss5 transcripts identified from the Ensembl release 102 (GRCm38) GTF and the current Ensembl REST lookup.</p>
-        <p><strong>GEO check (10 November 2026).</strong> All 24 values match the GEO files to 0.01 TPM. GEO sample titles and characteristics (genotype, treatment, 100 mg/kg, age 15 weeks) agree with the group labels.</p>
+        <p><strong>GEO check (10 November 2026).</strong> All 32 values match the GEO files to 0.01 TPM. GEO sample titles and characteristics (genotype, treatment, 100 mg/kg, age 15 weeks) agree with the group labels.</p>
 
         <h3>Study context</h3>
         <ul>
           <li><strong>Dataset:</strong> GSE103799, from Zhao et al., <em>J Clin Invest</em> 2018;128(1):359-368, co-authored by Dr. John Svaren. 3' poly-A mRNA sequencing of sciatic nerve.</li>
-          <li><strong>Subset:</strong> the 24 samples GSM2782045–GSM2782068 are the 15-week-old animals: wild-type + PBS, C22 + PBS, and C22 + PMP22 ASO at 100 mg/kg weekly by subcutaneous injection for 9 weeks, starting at 5 weeks of age. The series also contains untreated 5-week animals, not analyzed here.</li>
+          <li><strong>Subset:</strong> GSE103799 has 43 samples. Thirty-two are 15-week-old animals in four arms of 8: wild-type + PBS (GSM2782061–GSM2782068), C22 + PBS (GSM2782045–GSM2782052), C22 + PMP22 ASO (GSM2782053–GSM2782060), and wild-type + PMP22 ASO (GSM2782069–GSM2782076). The ASO arms received 100 mg/kg weekly by subcutaneous injection for 9 weeks, starting at 5 weeks of age. The main comparison uses the first three arms (24 mice); the wild-type + ASO arm is reported as a control. The series also contains 11 untreated 5-week animals (8 C22, 3 wild-type), not analyzed here.</li>
           <li><strong>Model:</strong> C22 is a severe model carrying about seven copies of human PMP22; 100 mg/kg was the highest dose tested.</li>
           <li>Zhao et al. reported 1,056 genes differing more than twofold between 15-week C22 and wild-type nerve. A Schwann cell gene moving back toward wild-type as myelination improves is expected and is not specific to Tmprss5.</li>
         </ul>
@@ -517,7 +521,7 @@
         <h3>Reproducing the numbers</h3>
         <pre>python3 scripts/recompute_tmprss5.py
 python3 scripts/recompute_tmprss5.py --fetch-geo</pre>
-        <p>The first command recomputes the statistics from the CSV; the second checks every CSV value against the GEO per-sample Salmon files (needs network). Result of the GEO check run on 10 November 2026: 24/24 samples OK. All 24 values match the GEO files to 0.01 TPM, and the GEO titles and characteristics agree with the CSV group labels.</p>
+        <p>The first command recomputes the statistics from the CSV; the second checks every CSV value against the GEO per-sample Salmon files (needs network). Result of the GEO check run on 10 November 2026: 32/32 samples OK. All 32 values match the GEO files to 0.01 TPM, and the GEO titles and characteristics agree with the CSV group labels.</p>
         <p>Dependencies: Python 3.9+ and scipy.</p>
       </div>
     </section>
@@ -556,25 +560,41 @@ python3 scripts/recompute_tmprss5.py --fetch-geo</pre>
       { sample_id: "GSM2782057", group: "C22_ASO", tmprss5_tpm: 43.36 },
       { sample_id: "GSM2782058", group: "C22_ASO", tmprss5_tpm: 39.24 },
       { sample_id: "GSM2782059", group: "C22_ASO", tmprss5_tpm: 31.58 },
-      { sample_id: "GSM2782060", group: "C22_ASO", tmprss5_tpm: 30.85 }
+      { sample_id: "GSM2782060", group: "C22_ASO", tmprss5_tpm: 30.85 },
+      { sample_id: "GSM2782069", group: "WT_ASO", tmprss5_tpm: 16.01 },
+      { sample_id: "GSM2782070", group: "WT_ASO", tmprss5_tpm: 14.10 },
+      { sample_id: "GSM2782071", group: "WT_ASO", tmprss5_tpm: 12.55 },
+      { sample_id: "GSM2782072", group: "WT_ASO", tmprss5_tpm: 8.37 },
+      { sample_id: "GSM2782073", group: "WT_ASO", tmprss5_tpm: 6.76 },
+      { sample_id: "GSM2782074", group: "WT_ASO", tmprss5_tpm: 13.00 },
+      { sample_id: "GSM2782075", group: "WT_ASO", tmprss5_tpm: 7.19 },
+      { sample_id: "GSM2782076", group: "WT_ASO", tmprss5_tpm: 8.93 }
     ];
 
-    const GROUP_ORDER = ["WT_PBS", "C22_PBS", "C22_ASO"];
+    const GROUP_ORDER = ["WT_PBS", "WT_ASO", "C22_PBS", "C22_ASO"];
     const GROUP_COLOR = {
       WT_PBS: "#7aa2c9",
+      WT_ASO: "#9ca3af",
       C22_PBS: "#d9776c",
       C22_ASO: "#6fbf9a"
     };
     const GROUP_MEAN = {
       WT_PBS: 11.17,
+      WT_ASO: 10.86,
       C22_PBS: 83.60,
       C22_ASO: 34.78
+    };
+    const GROUP_PILL = {
+      WT_PBS: "wt",
+      WT_ASO: "wtaso",
+      C22_PBS: "c22",
+      C22_ASO: "aso"
     };
 
     const tbody = document.getElementById("sampleBody");
     SAMPLES.forEach((row) => {
       const tr = document.createElement("tr");
-      const pillClass = row.group === "WT_PBS" ? "wt" : row.group === "C22_PBS" ? "c22" : "aso";
+      const pillClass = GROUP_PILL[row.group];
       tr.innerHTML = `
         <td class="mono">${row.sample_id}</td>
         <td><span class="pill ${pillClass}">${row.group}</span></td>
