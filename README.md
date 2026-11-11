@@ -2,7 +2,7 @@
 
 **Reproducible Data Note & Literature Cross-Reference**
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24118723.svg)](https://doi.org/10.5281/zenodo.24118723)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24122672.svg)](https://doi.org/10.5281/zenodo.24122672)
 
 Joshua Bryant-Gainer (CMT1A patient and data analyst) – November 2026 – Not peer-reviewed
 
